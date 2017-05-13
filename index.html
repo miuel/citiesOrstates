@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>American Cities or States</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <img src="art.png"  class="bg">
+  <form class="search-form">
+    <input type="text" class="search" placeholder="Cities or States">
+    <ul class="suggestions">
+      <li>Filter for a cities</li>
+      <li>or a state</li>
+      <!--<img src="tira.png" alt="">-->
+    </ul>
+  </form>
+<script>
+
+// extraigo la info de todas las ciudades y las guardo en la constante endpoint
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+
+const cities = [];
+
+// con la promesa fetch trato la info como json y meto la data en el array cities
+fetch(endpoint)
+  .then(blop => blop.json())
+  .then(data => cities.push(...data))
+
+
+// en esta funcion tengo 2 parametros (wordToMatch) sera la palabra que inserte el usuario en el input
+// y en cities sera donde busque esta información y la filtro
+  function findMatches(wordToMatch, cities) {
+    return cities.filter(place => {
+      // con la constante regex estoy dando lugar a que se trate la data como expresiones regulares
+      // globales e insisitives del wordToMatch 
+      const regex = new RegExp(wordToMatch, 'gi');
+      // finalmente filtro y compara si el regex(lo q escribio el usuario) es una ciudad o un estado
+      return place.city.match(regex) || place.state.match(regex)
+    })
+  }
+
+ 
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function displayMatches() {
+    const matchArray = findMatches(this.value, cities);
+    //console.log(matchArray)
+    
+    const html = matchArray.map(place => {
+      const regex = new RegExp(this.value, 'gi');
+      const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`); 
+      const cityState = place.state.replace(regex, `<span class="hl">${this.value}</span>`); 
+      return `
+        <li>
+          <span class="name">${cityName}, ${cityState}</span>
+          <span class="population">${place.population}</span>
+        </li>
+      `;
+    }).join('');
+    suggestions.innerHTML = html;
+}
+
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
+searchInput.addEventListener('change' , displayMatches)
+searchInput.addEventListener('keyup' , displayMatches)
+
+
+/*const paises = 'https://raw.githubusercontent.com/annexare/Countries/master/countries.json';
+const pais = [];
+fetch(paises)
+  .then(blap => blap.json())
+  .then(info => pais.push(info))
+*/
+
+</script>
+  </body>
+</html>
